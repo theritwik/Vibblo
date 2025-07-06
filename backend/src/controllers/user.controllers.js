@@ -38,10 +38,15 @@ const coverImages = [
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { username, fullName, email, password } = req.body;
 
-  // Check if the user already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return next(new ApiError(400, 'User with this email already exists'));
+  // Check if user with email or username already exists
+  const existingEmail = await User.findOne({ email });
+  if (existingEmail) {
+    return next(new ApiError(400, 'Email is already registered'));
+  }
+
+  const existingUsername = await User.findOne({ username });
+  if (existingUsername) {
+    return next(new ApiError(400, 'Username is already taken'));
   }
 
   // Get the current count of users to determine profile picture assignment

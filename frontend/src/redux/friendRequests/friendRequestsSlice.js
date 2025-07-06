@@ -21,11 +21,12 @@ export const sendFriendRequest = createAsyncThunk(
 // Accept a friend request
 export const acceptFriendRequest = createAsyncThunk(
   'friendRequests/acceptFriendRequest',
-  async (requestId, { rejectWithValue }) => {
+  async (requestId, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('/friendRequests/accept', { requestId });
+      // After accepting the request, fetch the updated friends list
+      dispatch(fetchFriendsList());
       return { data: response.data, requestId };
-
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -129,10 +130,11 @@ const friendRequestsSlice = createSlice({
     })    
       .addCase(acceptFriendRequest.fulfilled, (state, action) => {
         const acceptedRequestId = action.payload.requestId;
+        // Remove the accepted request from received requests
         state.receivedRequests = state.receivedRequests.filter(
           (req) => req._id !== acceptedRequestId
         );
-        state.friendsList.push(action.payload.data);
+        // Note: friendsList will be updated by fetchFriendsList action
       })
       .addCase(rejectFriendRequest.fulfilled, (state, action) => {
         const rejectedRequestId = action.payload.requestId;

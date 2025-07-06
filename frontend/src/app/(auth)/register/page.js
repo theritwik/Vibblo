@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { loginSuccess } from "@/redux/auth/authSlice";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axiosInstance from "@/api/axiosInstance";
 import UnAuthRedirect from "@/components/UnAuthRedirect";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -26,6 +27,7 @@ import {
 
 export default function SignupForm() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const [formData, setFormData] = useState({
@@ -129,8 +131,9 @@ export default function SignupForm() {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/register`,
+      // Register the user
+      await axiosInstance.post(
+        '/user/register',
         {
           username: formData.username,
           fullName: formData.fullName,
@@ -138,13 +141,42 @@ export default function SignupForm() {
           password: formData.password,
         }
       );
-      console.log("User registered successfully:", response.data);
-      router.push("/login");
-    } catch (error) {
-      console.error("Registration failed:", error.response?.data?.message);
-      setErrors({
-        email: error.response?.data?.message || "User with this email or username already exists",
+
+      // After successful registration, automatically login
+      const loginResponse = await axiosInstance.post('/user/login', {
+        email: formData.email,
+        password: formData.password,
       });
+
+      // Store the token and update auth state
+      const token = loginResponse.data.data.token;
+      localStorage.setItem('authToken', token);
+      dispatch(loginSuccess({ token }));
+
+      // Redirect to home page
+      router.push("/");
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      
+      // Determine which field has the error and go to appropriate step
+      if (errorMessage.toLowerCase().includes('email')) {
+        setErrors({ email: errorMessage });
+        setStep(2); // Go to email step
+      } else if (errorMessage.toLowerCase().includes('username')) {
+        setErrors({ username: errorMessage });
+        setStep(1); // Go to username step
+      } else if (errorMessage.toLowerCase().includes('password')) {
+        setErrors({ password: errorMessage });
+        setStep(3); // Stay on password step
+      } else {
+        // Generic error - show on current step
+        setErrors({
+          username: errorMessage,
+          email: errorMessage,
+          password: errorMessage
+        });
+      }
+      console.error("Registration error:", error.response?.data);
     } finally {
       setIsSubmitting(false);
     }

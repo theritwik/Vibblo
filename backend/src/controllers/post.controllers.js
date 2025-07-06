@@ -9,18 +9,24 @@ import { User } from '../models/user.model.js';
 
 // Create a new post
 export const createPost = asyncHandler(async (req, res, next) => {
-  try {
-    const userId = req.user.id;
+  const userId = req.user.id;
     const { content, image, backgroundColor, pollData, feeling } = req.body;
 
-    // Create post object with basic fields
-    const postData = { 
-      content, 
-      image,
-      feeling,
-      backgroundColor: backgroundColor || 'bg-white',
-      user: userId, 
-    };
+  // Validate that at least content or image is provided
+  if (!content && !image) {
+    return next(new ApiError(400, 'Post must contain either text content or an image'));
+  }
+
+  // Create post object with basic fields
+  const postData = { 
+    user: userId,
+  };
+
+  // Only add fields if they are provided
+  if (content) postData.content = content;
+  if (image) postData.image = image;
+  if (feeling) postData.feeling = feeling;
+  if (backgroundColor) postData.backgroundColor = backgroundColor;
 
     // Add poll data if provided
     if (pollData && pollData.options && pollData.options.length >= 2) {
@@ -41,7 +47,18 @@ export const createPost = asyncHandler(async (req, res, next) => {
     }
 
     // Create the new post
-    const post = await Post.create(postData);
+    let post;
+    try {
+      post = await Post.create(postData);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Handle mongoose validation errors
+        const messages = Object.values(error.errors).map(err => err.message);
+        return next(new ApiError(400, messages.join(', ')));
+      }
+      // Handle other errors
+      return next(new ApiError(500, 'Failed to create post'));
+    }
 
     // Fetch the new post with populated user details
     const populatedPost = await Post.findById(post._id)
@@ -51,15 +68,11 @@ export const createPost = asyncHandler(async (req, res, next) => {
       .lean();
 
     res.status(201).json(new ApiResponse(201, 'Post created successfully', populatedPost));
-  } catch (error) {
-    next(new ApiError(500, 'Failed to create post'));
-  }
 });
 
 // Get all posts of all users along with comments and user details
 export const getAllPosts = asyncHandler(async (req, res, next) => {
-  try {
-    // Fetch all posts with populated user and likes fields
+  // Fetch all posts with populated user and likes fields
     const posts = await Post.find()
       .populate('user', 'fullName profilePicture username')
       .populate('likes', 'fullName')
@@ -78,9 +91,6 @@ export const getAllPosts = asyncHandler(async (req, res, next) => {
     });
 
     res.status(200).json(new ApiResponse(200, 'All posts fetched successfully', updatedPosts));
-  } catch (error) {
-    next(new ApiError(500, 'Failed to fetch posts'));
-  }
 });
 
 // get specific post by id

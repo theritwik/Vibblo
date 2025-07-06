@@ -82,22 +82,52 @@ const UserProfile = ({ params }) => {
     dispatch(fetchSentRequests());
   };
 
-  const handleCancelRequest = () => {
-    dispatch(cancelSentRequest(sentRequestId));
+  const handleCancelRequest = async () => {
+    await dispatch(cancelSentRequest(sentRequestId));
+    // After canceling, refetch sent requests and user details
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`);
+      setUser(response.data.data);
+      await dispatch(fetchSentRequests());
+    } catch (err) {
+      setError('Failed to update friend request status');
+    }
   };
 
-  const handleAcceptRequest = () => {
-    dispatch(acceptFriendRequest(receivedRequestId));
-    dispatch(fetchFriendsList());
+  const handleAcceptRequest = async () => {
+    await dispatch(acceptFriendRequest(receivedRequestId));
+    // After accepting, refetch both user details and friends list
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`);
+      setUser(response.data.data);
+      await dispatch(fetchFriendsList());
+    } catch (err) {
+      setError('Failed to update friend status');
+    }
   };
 
-  const handleRejectRequest = () => {
-    dispatch(rejectFriendRequest(receivedRequestId));
+  const handleRejectRequest = async () => {
+    await dispatch(rejectFriendRequest(receivedRequestId));
+    // After rejecting, refetch received requests and user details
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`);
+      setUser(response.data.data);
+      await dispatch(fetchReceivedRequests());
+    } catch (err) {
+      setError('Failed to update friend request status');
+    }
   };
 
-  const handleUnfriend = () => {
-    dispatch(unfriend(user._id));
-    dispatch(fetchFriendsList());
+  const handleUnfriend = async () => {
+    await dispatch(unfriend(user._id));
+    // After unfriending, refetch both user details and friends list
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`);
+      setUser(response.data.data);
+      await dispatch(fetchFriendsList());
+    } catch (err) {
+      setError('Failed to update friend status');
+    }
   };
 
   const renderSection = () => {
