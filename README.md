@@ -2,10 +2,11 @@
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/theritwik/Vibblo/ci.yml?branch=main)
 ![License](https://img.shields.io/github/license/theritwik/Vibblo)
-![npm version](https://img.shields.io/npm/v/vibblo)
-![Dependencies](https://img.shields.io/david/theritwik/Vibblo)
+![Issues](https://img.shields.io/github/issues/theritwik/Vibblo)
+![Top Language](https://img.shields.io/github/languages/top/theritwik/Vibblo)
 
-> A MERN-stack social networking site with real-time feed updates, friend-requests, and more.
+> A MERN-stack social network with real-time feeds, friend requests, and more.
+
 
 ## 📄 Description
 
