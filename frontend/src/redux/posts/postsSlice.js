@@ -6,17 +6,12 @@ export const createPost = createAsyncThunk(
   'posts/createPost',
   async ({ content, image, backgroundColor, pollData, feeling }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await axiosInstance.post('/posts', { 
         content, 
         image, 
         backgroundColor,
         pollData,
         feeling,
-      }, {
-        headers: {
-          'auth-token': token,
-        },
       });
       return response.data;
     } catch (error) {
@@ -43,15 +38,10 @@ export const editPost = createAsyncThunk(
   'posts/editPost',
   async ({ postId, content, image, backgroundColor }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await axiosInstance.put(`/posts/${postId}`, { 
         content, 
         image,
         backgroundColor 
-      }, {
-        headers: {
-          'auth-token': token,
-        },
       });
       return response.data;
     } catch (error) {
@@ -65,12 +55,7 @@ export const deletePost = createAsyncThunk(
   'posts/deletePost',
   async (postId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axiosInstance.delete(`/posts/${postId}`, {
-        headers: {
-          'auth-token': token,
-        },
-      });
+      const response = await axiosInstance.delete(`/posts/${postId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -83,12 +68,7 @@ export const toggleLikePost = createAsyncThunk(
   'posts/toggleLikePost',
   async (postId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axiosInstance.post(`/posts/${postId}/like`, {}, {
-        headers: {
-          'auth-token': token,
-        },
-      });
+      const response = await axiosInstance.post(`/posts/${postId}/like`, {});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -114,12 +94,7 @@ export const votePollOption = createAsyncThunk(
   'posts/votePollOption',
   async ({ postId, optionId }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axiosInstance.post(`/posts/${postId}/poll/${optionId}/vote`, {}, {
-        headers: {
-          'auth-token': token,
-        },
-      });
+      const response = await axiosInstance.post(`/posts/${postId}/poll/${optionId}/vote`, {});
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

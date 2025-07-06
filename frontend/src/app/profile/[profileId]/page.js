@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/api/axiosInstance';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   sendFriendRequest,
@@ -65,7 +65,7 @@ const UserProfile = ({ params }) => {
     const fetchData = async () => {
       try {
         const [userResponse] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`),
+          axiosInstance.get(`/user/userDetails/${params.profileId}`),
           dispatch(getAllPosts()),
           dispatch(fetchUsers()),
           dispatch(fetchSentRequests()),
@@ -85,7 +85,7 @@ const UserProfile = ({ params }) => {
   const refreshAllData = async () => {
     try {
       const [userResponse] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/userDetails/${params.profileId}`),
+        axiosInstance.get(`/user/userDetails/${params.profileId}`),
         dispatch(fetchSentRequests()),
         dispatch(fetchReceivedRequests()),
         dispatch(fetchFriendsList())
