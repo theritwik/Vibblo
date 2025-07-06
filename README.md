@@ -1,6 +1,5 @@
 # Vibblo
 
-[![CI](https://github.com/theritwik/Vibblo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/theritwik/Vibblo/actions)
 ![License](https://img.shields.io/github/license/theritwik/Vibblo?branch=main)
 ![Issues](https://img.shields.io/github/issues/theritwik/Vibblo)
 ![Top Language](https://img.shields.io/github/languages/top/theritwik/Vibblo)
