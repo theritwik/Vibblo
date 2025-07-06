@@ -18,14 +18,20 @@ export const sendFriendRequest = createAsyncThunk(
 );
 
 
-// Accept a friend request
+  // Accept a friend request
 export const acceptFriendRequest = createAsyncThunk(
   'friendRequests/acceptFriendRequest',
   async (requestId, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.post('/friendRequests/accept', { requestId });
-      // After accepting the request, fetch the updated friends list
-      dispatch(fetchFriendsList());
+      
+      // After accepting, fetch fresh data
+      await Promise.all([
+        dispatch(fetchFriendsList()),
+        dispatch(fetchReceivedRequests()),
+        dispatch(fetchSentRequests()),
+      ]);
+      
       return { data: response.data, requestId };
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -98,12 +104,20 @@ export const cancelSentRequest = createAsyncThunk(
   }
 );
 
-// Unfriend a friend
+  // Unfriend a friend
 export const unfriend = createAsyncThunk(
   'friendRequests/unfriend',
-  async (friendId, { rejectWithValue }) => {
+  async (friendId, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosInstance.delete('/friendRequests/unfriend', { data: { friendId } });
+      
+      // After unfriending, fetch fresh data
+      await Promise.all([
+        dispatch(fetchFriendsList()),
+        dispatch(fetchReceivedRequests()),
+        dispatch(fetchSentRequests()),
+      ]);
+      
       return { data: response.data, friendId };
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -129,12 +143,9 @@ const friendRequestsSlice = createSlice({
       state.sentRequests.push(action.payload);
     })    
       .addCase(acceptFriendRequest.fulfilled, (state, action) => {
-        const acceptedRequestId = action.payload.requestId;
-        // Remove the accepted request from received requests
-        state.receivedRequests = state.receivedRequests.filter(
-          (req) => req._id !== acceptedRequestId
-        );
-        // Note: friendsList will be updated by fetchFriendsList action
+        // Clear state and let the fetch actions repopulate with fresh data
+        state.receivedRequests = [];
+        state.friendsList = [];
       })
       .addCase(rejectFriendRequest.fulfilled, (state, action) => {
         const rejectedRequestId = action.payload.requestId;
@@ -159,10 +170,8 @@ const friendRequestsSlice = createSlice({
         );
       })
       .addCase(unfriend.fulfilled, (state, action) => {
-        const removedFriendId = action.payload.friendId;
-        state.friendsList = state.friendsList.filter(
-          (friend) => friend._id !== removedFriendId
-        );
+        // Clear state and let the fetch actions repopulate with fresh data
+        state.friendsList = [];
       })
       .addMatcher(
         (action) => action.type.endsWith('/rejected'),

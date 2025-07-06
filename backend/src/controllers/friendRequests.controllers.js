@@ -1,4 +1,5 @@
 // friendRequest.controller.js
+import mongoose from 'mongoose';
 import { FriendRequest } from '../models/friendRequests.model.js';
 import { User } from '../models/user.model.js';
 import { Notification } from '../models/notification.model.js';
@@ -43,31 +44,61 @@ export const acceptFriendRequest = asyncHandler(async (req, res, next) => {
   const userId = req.user.id;
   const { requestId } = req.body;
 
-  // Find the request
-  const friendRequest = await FriendRequest.findOne({ _id: requestId, receiver: userId });
-  if (!friendRequest) {
-    return next(new ApiError(404, 'Friend request not found'));
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Find the request
+    const friendRequest = await FriendRequest.findOne({ _id: requestId, receiver: userId }).session(session);
+    if (!friendRequest) {
+      throw new ApiError(404, 'Friend request not found');
+    }
+
+    // Add each other as friends atomically
+    await Promise.all([
+      User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { friends: friendRequest.sender } },
+        { session }
+      ),
+      User.findByIdAndUpdate(
+        friendRequest.sender,
+        { $addToSet: { friends: userId } },
+        { session }
+      )
+    ]);
+
+    // Get recipient name for notification
+    const recipient = await User.findById(userId).session(session);
+    
+    // Create notification
+    await Notification.create([{
+      senderUser: userId,
+      receiverUser: friendRequest.sender,
+      message: `${recipient.fullName} accepted your friend request`,
+      navigateLink: `/profile/${userId}`,
+    }], { session });
+
+    // Delete all friend requests between these users in both directions
+    await FriendRequest.deleteMany({
+      $or: [
+        { sender: userId, receiver: friendRequest.sender },
+        { sender: friendRequest.sender, receiver: userId }
+      ]
+    }).session(session);
+
+    // Commit the transaction
+    await session.commitTransaction();
+
+    res.status(200).json(new ApiResponse(200, 'Friend request accepted successfully'));
+  } catch (error) {
+    // Rollback transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Add each other as friends
-  await User.findByIdAndUpdate(userId, { $addToSet: { friends: friendRequest.sender } });
-  await User.findByIdAndUpdate(friendRequest.sender, { $addToSet: { friends: userId } });
-
-  // Get recipient name for notification
-  const recipient = await User.findById(userId);
-  
-  // Create notification for sender of original request
-  await Notification.create({
-    senderUser: userId,
-    receiverUser: friendRequest.sender,
-    message: `${recipient.fullName} accepted your friend request`,
-    navigateLink: `/profile/${userId}`,
-  });
-
-  // Remove the friend request
-  await friendRequest.deleteOne();
-
-  res.status(200).json(new ApiResponse(200, 'Friend request accepted successfully'));
 });
 
 // Reject or delete a friend request
@@ -138,17 +169,52 @@ export const unfriend = asyncHandler(async (req, res, next) => {
   const userId = req.user.id;
   const { friendId } = req.body;
 
-  // Check if the friend exists in the user's friends list
-  const user = await User.findById(userId);
-  const friend = await User.findById(friendId);
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (!user || !friend) {
-    return next(new ApiError(404, 'User or friend not found'));
+  try {
+    // Check if both users exist
+    const [user, friend] = await Promise.all([
+      User.findById(userId).session(session),
+      User.findById(friendId).session(session)
+    ]);
+
+    if (!user || !friend) {
+      throw new ApiError(404, 'User or friend not found');
+    }
+
+    // Remove each other from friends lists atomically
+    await Promise.all([
+      User.findByIdAndUpdate(
+        userId,
+        { $pull: { friends: friendId } },
+        { session }
+      ),
+      User.findByIdAndUpdate(
+        friendId,
+        { $pull: { friends: userId } },
+        { session }
+      )
+    ]);
+
+    // Delete any pending friend requests between these users
+    await FriendRequest.deleteMany({
+      $or: [
+        { sender: userId, receiver: friendId },
+        { sender: friendId, receiver: userId }
+      ]
+    }).session(session);
+
+    // Commit the transaction
+    await session.commitTransaction();
+
+    res.status(200).json(new ApiResponse(200, 'Friend removed successfully'));
+  } catch (error) {
+    // Rollback transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Remove each other from friends list
-  await User.findByIdAndUpdate(userId, { $pull: { friends: friendId } });
-  await User.findByIdAndUpdate(friendId, { $pull: { friends: userId } });
-
-  res.status(200).json(new ApiResponse(200, 'Friend removed successfully'));
 });
