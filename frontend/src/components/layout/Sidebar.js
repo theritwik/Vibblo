@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserDetails } from '@/redux/auth/authSlice';
 import { FiMail } from 'react-icons/fi';
 
+
 const Sidebar = ({ isSidebar, toggleSidebar }) => {
   const dispatch = useDispatch();
   const [isClient, setIsClient] = useState(false);
@@ -32,6 +33,7 @@ const Sidebar = ({ isSidebar, toggleSidebar }) => {
   if (!isClient) {
     return null; // Render nothing until client-side rendering is confirmed
   }
+
 
   const toggleMinimize = () => {
     setMinimize(!minimize);
@@ -59,6 +61,7 @@ const Sidebar = ({ isSidebar, toggleSidebar }) => {
 
   return (
     <>
+
       {isLoggedIn && (
         <>
           {/* Backdrop overlay for mobile */}
@@ -80,6 +83,7 @@ const Sidebar = ({ isSidebar, toggleSidebar }) => {
             animate={minimize ? "collapsed" : "expanded"}
             variants={sidebarVariants}
           >
+
             {/* Mobile Close Button */}
             {isSidebar && !minimize && (
               <motion.button
@@ -347,6 +351,7 @@ const Sidebar = ({ isSidebar, toggleSidebar }) => {
             </div>
           </motion.div>
         </motion.div>
+
         </>
       )}
     </>
@@ -397,5 +402,6 @@ const menuItems = [
     iconSrc: 'https://cdn-icons-png.flaticon.com/512/2698/2698011.png',
   },
 ];
+
 
 export default Sidebar;

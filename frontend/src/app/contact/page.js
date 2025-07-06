@@ -12,40 +12,48 @@ export default function ContactPage() {
   const socialMedia = [
     {
       name: 'LinkedIn',
+
       link: '#',
       icon: <FaLinkedin className="text-2xl" />,
       description: 'Follow our company updates and connect with the Vibblo team.',
       username: 'vibblo',
+
       color: 'bg-blue-50 text-blue-600 border-blue-200',
       iconBg: 'bg-blue-600',
       hoverColor: 'hover:border-blue-400 hover:shadow-blue-200',
     },
     {
       name: 'GitHub',
+
       link: '#',
       icon: <FaGithub className="text-2xl" />,
       description: 'Explore our open source code and projects.',
       username: 'hasanihardik/Vibblo',
+
       color: 'bg-slate-50 text-slate-800 border-slate-200',
       iconBg: 'bg-slate-800',
       hoverColor: 'hover:border-slate-400 hover:shadow-slate-200',
     },
     {
       name: 'Instagram',
+
       link: '#',
       icon: <FaInstagram className="text-2xl" />,
       description: 'Follow our journey and community updates.',
       username: 'vibblo_app',
+
       color: 'bg-pink-50 text-pink-600 border-pink-200',
       iconBg: 'bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500',
       hoverColor: 'hover:border-pink-400 hover:shadow-pink-200',
     },
     {
       name: 'WhatsApp',
+
       link: '#',
       icon: <FaWhatsapp className="text-2xl" />,
       description: "Get in touch with our support team!",
       username: 'support',
+
       color: 'bg-green-50 text-green-600 border-green-200',
       iconBg: 'bg-green-500',
       hoverColor: 'hover:border-green-400 hover:shadow-green-200',
@@ -55,13 +63,16 @@ export default function ContactPage() {
   const contactMethods = [
     {
       name: 'Send Email',
+
       description: 'Contact our support team via email',
       icon: <FiMail className="text-blue-600 text-2xl" />,
       action: 'mailto:hasanihardik@gmail.com',
+
       color: 'bg-blue-50 border-blue-200',
       hoverColor: 'hover:border-blue-400 hover:bg-blue-100',
     },
     {
+
       name: 'Help Center',
       description: 'Browse our help articles and FAQs',
       icon: <FiMessageSquare className="text-indigo-600 text-2xl" />,
@@ -96,6 +107,7 @@ export default function ContactPage() {
               Let's <span className="text-blue-600">Connect</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+
               Choose your preferred way to reach out to us. We're here to help with support, partnerships, or any questions about Vibblo.
             </p>
           </motion.div>
@@ -233,18 +245,23 @@ export default function ContactPage() {
             className="text-center"
           >
             <div className="bg-gray-50 py-12 px-6 rounded-2xl max-w-3xl mx-auto">
+
               <h2 className="text-2xl font-bold text-gray-900 mb-4">About Vibblo</h2>
               <p className="text-gray-600 mb-8">
                 Learn more about our mission, team, and the story behind Vibblo's social platform.
+
               </p>
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+
                 href="#"
+
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300"
               >
+
                 About Us
                 <FiExternalLink className="ml-2" />
               </motion.a>
@@ -254,4 +271,6 @@ export default function ContactPage() {
       </main>
     </AuthRedirect>
   );
+
 }
+

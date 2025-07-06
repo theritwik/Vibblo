@@ -25,6 +25,7 @@ function LayoutWrapper({ children }) {
   return (
     <>
       <Header toggleSidebar={toggleSidebar} />
+
       <div className="flex w-full h-full relative">
         <div className="absolute md:relative md:block">
         <Sidebar isSidebar={isSidebar} toggleSidebar={toggleSidebar} />
@@ -36,4 +37,7 @@ function LayoutWrapper({ children }) {
       </div>
     </>
   )
+
+
 }
+

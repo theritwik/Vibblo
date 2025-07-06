@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+
 import { useEffect, useState } from 'react';
 
 const ModalPortal = ({ children, giveBg = false }) => {
@@ -12,6 +13,7 @@ const ModalPortal = ({ children, giveBg = false }) => {
     return null;
   }
 
+
   return createPortal(
     <div className={`fixed inset-0 z-[9999] pointer-events-none ${giveBg && 'bg-black/40 backdrop-blur-sm'}`}>
       <div className="pointer-events-auto">
@@ -21,5 +23,6 @@ const ModalPortal = ({ children, giveBg = false }) => {
     document.body
   );
 };
+
 
 export default ModalPortal;
