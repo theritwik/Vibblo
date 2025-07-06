@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserDetails } from '@/redux/auth/authSlice';
 import { FiMail } from 'react-icons/fi';
 
-const Sidebar = ({ isSidebar }) => {
+
+const Sidebar = ({ isSidebar, toggleSidebar }) => {
   const dispatch = useDispatch();
   const [isClient, setIsClient] = useState(false);
   const [minimize, setMinimize] = useState(false);
@@ -33,7 +34,8 @@ const Sidebar = ({ isSidebar }) => {
     return null; // Render nothing until client-side rendering is confirmed
   }
 
-  const toggleSidebar = () => {
+
+  const toggleMinimize = () => {
     setMinimize(!minimize);
   }
 
@@ -59,22 +61,50 @@ const Sidebar = ({ isSidebar }) => {
 
   return (
     <>
-      {isLoggedIn &&
-        <motion.div
-          className={`${isSidebar ? 'block' : 'hidden md:block md:relative fixed z-20'}`}
-          initial={false}
-          animate={minimize ? "collapsed" : "expanded"}
-          variants={sidebarVariants}
-        >
+
+      {isLoggedIn && (
+        <>
+          {/* Backdrop overlay for mobile */}
+          {isSidebar && (
+            <div 
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden"
+              onClick={() => toggleSidebar()}
+            />
+          )}
           <motion.div
-            className={`sidebar fixed overflow-y-auto bg-white text-gray-900 flex flex-col border-r border-gray-200 shadow-lg`}
+            className={`${isSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} fixed md:relative z-40 transition-transform duration-300 ease-in-out h-full`}
+            initial={false}
+            animate={minimize ? "collapsed" : "expanded"}
+            variants={sidebarVariants}
+          >
+          <motion.div
+            className={`sidebar h-full fixed overflow-y-auto bg-white text-gray-900 flex flex-col border-r border-gray-200 shadow-lg`}
             style={{ height: "calc(100vh - 4rem)" }}
             animate={minimize ? "collapsed" : "expanded"}
             variants={sidebarVariants}
           >
+
+            {/* Mobile Close Button */}
+            {isSidebar && !minimize && (
+              <motion.button
+                className="absolute right-3 top-3 p-2 rounded-full hover:bg-gray-100 md:hidden"
+                onClick={toggleSidebar}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </motion.button>
+            )}
+
+            {/* Minimize/Expand Button */}
             <motion.button
               className="absolute right-0 bottom-32 bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-2.5 rounded-l-lg z-10 shadow-lg"
-              onClick={toggleSidebar}
+              onClick={minimize ? toggleMinimize : toggleMinimize}
               whileHover={{ scale: 1.1, boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.5)" }}
               whileTap={{ scale: 0.95 }}
             >
@@ -321,7 +351,9 @@ const Sidebar = ({ isSidebar }) => {
             </div>
           </motion.div>
         </motion.div>
-      }
+
+        </>
+      )}
     </>
   );
 };
@@ -370,5 +402,6 @@ const menuItems = [
     iconSrc: 'https://cdn-icons-png.flaticon.com/512/2698/2698011.png',
   },
 ];
+
 
 export default Sidebar;

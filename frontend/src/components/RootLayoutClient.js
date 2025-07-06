@@ -25,8 +25,11 @@ function LayoutWrapper({ children }) {
   return (
     <>
       <Header toggleSidebar={toggleSidebar} />
-      <div className="flex w-full h-full">
-        <Sidebar isSidebar={isSidebar} />
+
+      <div className="flex w-full h-full relative">
+        <div className="absolute md:relative md:block">
+        <Sidebar isSidebar={isSidebar} toggleSidebar={toggleSidebar} />
+        </div>
         <div className="flex flex-col flex-1 max-w-full overflow-hidden">
           {children}
         </div>
@@ -34,4 +37,7 @@ function LayoutWrapper({ children }) {
       </div>
     </>
   )
+
+
 }
+

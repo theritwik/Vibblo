@@ -80,15 +80,17 @@ const Header = ({ toggleSidebar }) => {
                   className="relative"
                 >
                   <img
-                    src="/images/rehman_logo.png"
-                    alt="Logo"
+
+                                    src="https://cdn-icons-png.flaticon.com/512/2037/2037037.png"
+                                    alt="Vibblo Logo"
                     className="w-9 h-9 rounded-lg mr-2 z-10 relative drop-shadow-md"
                   />
                   <motion.div
                     className="absolute inset-0 bg-indigo-400/20 rounded-lg blur-md"
                     animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.7, 0.4, 0.7]
+
+                      scale: [1, 1.3, 1],
+                      opacity: [0.5, 0.2, 0.5]
                     }}
                     transition={{
                       duration: 2,
@@ -233,13 +235,15 @@ const Header = ({ toggleSidebar }) => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors md:hidden"
+
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors block md:hidden"
                 onClick={toggleSidebar}
               >
                 <FiMenu className="w-5 h-5 text-gray-700" />
               </motion.button>
               <a
-                href={"https://github.com/rehmanNRY/SocialMediaApp/fork"}
+
+                href="https://github.com/hasanihardik/Vibblo"
                 target='_blank'
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors md:block hidden"
               >
@@ -260,4 +264,6 @@ const Header = ({ toggleSidebar }) => {
   );
 };
 
+
 export default Header;
+
